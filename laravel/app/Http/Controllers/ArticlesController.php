@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\Tag;
 use Auth;
 use App\Article;
 use App\Http\Requests;
@@ -31,26 +32,40 @@ class ArticlesController extends Controller {
 
     public function create(){
 
-        return view('articles.create');
+        $tags = Tag::lists('name','id');
+        return view('articles.create', compact('tags'));
     }
 
     public function store(ArticleRequest $request){
 
-        $article = new Article($request->all());
-        Auth::user()->articles()->save($article);
+        $this->createArticle($request);
 
-        flash('Your article has been created')->important();
+        flash('Your article has been created');
 
         return redirect('articles');
     }
 
     public function edit(Article $article){
-
-        return view('articles.edit',compact('article'));
+        $tags = Tag::lists('name','id');
+        return view('articles.edit',compact('article', 'tags'));
     }
 
     public function update(Article $article, ArticleRequest $request){
         $article->update($request->all());
+
+        $this->syncTags($article, $request->input('tag_list'));
+
         return redirect('articles');
+    }
+
+
+    private function createArticle(ArticleRequest $request){
+       $article = Auth::user()->articles()->save(new Article($request->all()));
+       $this->syncTags($article, $request->input('tag_list'));
+       return $article;
+    }
+
+    private function syncTags(Article $article, array $tags){
+        $article->tags()->sync($tags);
     }
 }
