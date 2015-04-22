@@ -39,6 +39,8 @@ class ArticlesController extends Controller {
         $article = new Article($request->all());
         Auth::user()->articles()->save($article);
 
+        flash('Your article has been created')->important();
+
         return redirect('articles');
     }
 
