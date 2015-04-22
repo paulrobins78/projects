@@ -6,4 +6,12 @@ class Tag extends Model {
 
 	//
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function articles(){
+
+        return $this->belongsToMany('App\Article');
+    }
+
 }
